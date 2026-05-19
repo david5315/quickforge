@@ -1,0 +1,1161 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试管理 - AIoT 智慧校园</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/all.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #17a2b8;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: none;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1.5rem;
+            border-radius: 20px 20px 0 0 !important;
+        }
+        .top-nav { margin-bottom: 20px; }
+        .top-nav .btn { margin-right: 10px; }
+        .test-section {
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+        .test-section h5 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .iot-control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .iot-device-card {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .iot-device-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .iot-device-card.active {
+            border-color: var(--success);
+            background: #e8f5e9;
+        }
+        .iot-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .iot-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        .iot-status.on {
+            background: var(--success);
+            color: white;
+        }
+        .iot-status.off {
+            background: #6c757d;
+            color: white;
+        }
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+        .result-info { border-left: 4px solid var(--info); }
+        .classroom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .classroom-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .classroom-checkbox:hover {
+            background: #e9ecef;
+            border-color: var(--primary);
+        }
+        .classroom-checkbox input {
+            margin-right: 8px;
+        }
+        .classroom-checkbox.checked {
+            background: #e3f2fd;
+            border-color: var(--primary);
+        }
+        .image-preview {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            margin-top: 15px;
+            display: none;
+        }
+        .image-preview.show {
+            display: block;
+        }
+        .analysis-result {
+            background: #fff9c4;
+            border: 2px solid #ffd54f;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <a href="index.html" class="btn btn-light"><i class="fas fa-home me-1"></i> 首页</a>
+            <a href="aiot_index.html" class="btn btn-light"><i class="fas fa-th-large me-1"></i> 管理首页</a>
+            <a href="aiot_config.html" class="btn btn-primary"><i class="fas fa-tasks me-1"></i> 任务配置</a>
+            <a href="aiot_log.html" class="btn btn-info"><i class="fas fa-file-alt me-1"></i> 日志查看</a>
+            <a href="aiot_chat.html" class="btn btn-warning"><i class="fas fa-comments me-1"></i> AI 对话</a>
+            <a href="aiot_admin.html" class="btn btn-danger"><i class="fas fa-cog me-1"></i> 调试管理</a>
+            <a href="aiot_params.html" class="btn btn-success"><i class="fas fa-database me-1"></i> 参数配置</a>
+            <button id="logoutBtn" class="btn btn-secondary" style="float: right;"><i class="fas fa-sign-out-alt me-1"></i> 退出</button>
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-bolt me-2"></i>快捷操作</h4>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100" onclick="quickAction('test_wechat')">
+                            <i class="fas fa-weixin me-1"></i> 测试企微推送
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success w-100" onclick="quickAction('test_sms')">
+                            <i class="fas fa-sms me-1"></i> 测试短信通知
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-info w-100" onclick="quickAction('test_iot')">
+                            <i class="fas fa-lightbulb me-1"></i> 测试物联网设备
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-warning w-100" onclick="quickAction('capture_test')">
+                            <i class="fas fa-camera me-1"></i> 测试抓图分析
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-danger w-100" onclick="quickAction('run_task6')">
+                            <i class="fas fa-bolt me-1"></i> 手动无人灯监测
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-secondary w-100" onclick="quickAction('aiot_control')">
+                            <i class="fas fa-robot me-1"></i> 测试 AIoT 全链控制
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 服务开关配置 -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-toggle-on me-2"></i>服务开关配置</h4>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="test-section">
+                            <h5><i class="fas fa-globe me-2"></i>Web 网页服务</h5>
+                            <p class="text-muted small">提供网页界面和 API 接口</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switchWeb" checked="">
+                                <label class="form-check-label" for="switchWeb">开启 Web 服务</label>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success" id="statusWeb">运行中</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="test-section">
+                            <h5><i class="fab fa-weixin me-2"></i>企微 URL 回调对话</h5>
+                            <p class="text-muted small">企业微信机器人 HTTP 回调模式</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switchWeComURL" checked="">
+                                <label class="form-check-label" for="switchWeComURL">开启企微回调</label>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success" id="statusWeComURL">运行中</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="test-section">
+                            <h5><i class="fas fa-rocket me-2"></i>飞书机器人对话</h5>
+                            <p class="text-muted small">飞书开放平台双向对话</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switchFeishu">
+                                <label class="form-check-label" for="switchFeishu">开启飞书机器人</label>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-secondary" id="statusFeishu">已关闭</span>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">App ID: <code id="feishuAppId">cli_a964a4212f78dbef</code></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="test-section">
+                            <h5><i class="fas fa-paper-plane me-2"></i>Webhook 微信群推送</h5>
+                            <p class="text-muted small">定时任务和手动消息推送</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switchWebhook" checked="">
+                                <label class="form-check-label" for="switchWebhook">开启推送</label>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success" id="statusWebhook">运行中</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="test-section">
+                            <h5><i class="fas fa-clock me-2"></i>定时任务调度</h5>
+                            <p class="text-muted small">自动执行配置的任务</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switchScheduler" checked="">
+                                <label class="form-check-label" for="switchScheduler">开启调度</label>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success" id="statusScheduler">运行中</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="test-section">
+                            <h5><i class="fas fa-plug me-2"></i>物联网设备控制</h5>
+                            <p class="text-muted small">允许控制照明、空调、插座等设备</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switchIotControl">
+                                <label class="form-check-label" for="switchIotControl">允许控制物联网设备</label>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success" id="statusIotControl">运行中</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary" onclick="saveServiceConfig()">
+                        <i class="fas fa-save me-1"></i> 保存配置
+                    </button>
+                    <button class="btn btn-warning" onclick="restartServices()">
+                        <i class="fas fa-redo me-1"></i> 重启服务
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 物联网控制测试弹窗 -->
+    <div class="modal fade" id="iotControlModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plug me-2"></i>物联网控制测试</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning" id="iotControlAlert" style="display: none;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>警告：</strong>物联网设备控制功能已禁用。请在上方"服务开关配置"中启用"允许控制物联网设备"。
+                    </div>
+                    
+                    <div id="iotControlPanel">
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-building me-2"></i>选择教室</label>
+                            <select class="form-select" id="iotClassroomSelect" onchange="loadIotDevices()">
+                                <option value="">-- 请选择教室 --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="iot-control-panel">
+                            <div class="iot-device-card" id="iotLighting">
+                                <div class="iot-icon">💡</div>
+                                <h6>照明系统</h6>
+                                <p class="text-muted small">Device ID: <span id="lightingId">-</span></p>
+                                <div>
+                                    <button class="btn btn-success btn-sm" onclick="controlIotDevice('lighting', true)">
+                                        <i class="fas fa-power-off me-1"></i> 开启
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="controlIotDevice('lighting', false)">
+                                        <i class="fas fa-power-off me-1"></i> 关闭
+                                    </button>
+                                </div>
+                                <span class="iot-status off" id="lightingStatus">关闭</span>
+                            </div>
+                            
+                            <div class="iot-device-card" id="iotAC">
+                                <div class="iot-icon">❄️</div>
+                                <h6>空调系统</h6>
+                                <p class="text-muted small">Device ID: <span id="acId">-</span></p>
+                                <div>
+                                    <button class="btn btn-success btn-sm" onclick="controlIotDevice('ac', true)">
+                                        <i class="fas fa-power-off me-1"></i> 开启
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="controlIotDevice('ac', false)">
+                                        <i class="fas fa-power-off me-1"></i> 关闭
+                                    </button>
+                                </div>
+                                <span class="iot-status off" id="acStatus">关闭</span>
+                            </div>
+                            
+                            <div class="iot-device-card" id="iotSocket">
+                                <div class="iot-icon">🔌</div>
+                                <h6>电源插座</h6>
+                                <p class="text-muted small">Device ID: <span id="socketId">-</span></p>
+                                <div>
+                                    <button class="btn btn-success btn-sm" onclick="controlIotDevice('socket', true)">
+                                        <i class="fas fa-power-off me-1"></i> 开启
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="controlIotDevice('socket', false)">
+                                        <i class="fas fa-power-off me-1"></i> 关闭
+                                    </button>
+                                </div>
+                                <span class="iot-status off" id="socketStatus">关闭</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-box result-info mt-3">
+                            <strong><i class="fas fa-history me-2"></i>控制日志</strong>
+                            <div id="iotLogContent">暂无操作记录</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 抓图分析弹窗 -->
+    <div class="modal fade" id="captureModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-camera me-2"></i>抓图分析测试</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-building me-1"></i>选择教室</label>
+                        <select class="form-select" id="captureClassroomSelect">
+                            <option value="">-- 请选择教室 --</option>
+                        </select>
+                        <small class="text-muted">一次只能测试一个教室</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-comment-dots me-1"></i>分析提示词</label>
+                        <textarea class="form-control" id="capturePrompt" rows="3">从教师讲台的左手位置是第一个学生按列逐个查看教室里的座位和学生，告诉我画面中有几个人？简短回答人数是几个</textarea>
+                        <small class="text-muted">可以修改提示词，AI 将根据提示词分析图片</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-warning" onclick="executeCapture()">
+                        <i class="fas fa-camera me-1"></i> 开始抓图分析
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 无人灯检测弹窗 -->
+    <div class="modal fade" id="task6Modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-play me-2"></i>手动无人灯检测</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-building me-1"></i>选择教室</label>
+                        <select class="form-select" id="task6ClassroomSelect">
+                            <option value="">-- 请选择教室 --</option>
+                        </select>
+                        <small class="text-muted">一次只能测试一个教室</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-edit me-1"></i>分析提示词</label>
+                        <textarea class="form-control" id="task6Prompt" rows="3" placeholder="请输入 AI 分析提示词...">检测无人但灯开着的教室，并自动关灯</textarea>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>任务说明：</strong><br>
+                        测试任务只分析一个教室的无人灯情况，允许修改提示词。<br>
+                        提示词默认为：检测无人但灯开着的教室，并自动关灯
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" onclick="executeTask6()">
+                        <i class="fas fa-play me-1"></i> 立即执行
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AIoT 全链控制弹窗 -->
+    <div class="modal fade" id="aiotControlModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-robot me-2"></i>AIoT 全链控制测试</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>功能说明：</strong><br>
+                        1. 选择教室和设备类型<br>
+                        2. 抓图并进行 AI 分析<br>
+                        3. 根据分析结果自动控制设备
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-building me-1"></i>选择教室</label>
+                        <select class="form-select" id="aiotClassroomSelect" onchange="onAiotClassroomChange()">
+                            <option value="">-- 请选择教室 --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-plug me-1"></i>选择设备类型</label>
+                        <select class="form-select" id="aiotDeviceTypeSelect">
+                            <option value="lighting">💡 照明开关</option>
+                            <option value="ac">❄️ 空调开关</option>
+                            <option value="socket">🔌 插座开关</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-comment-dots me-1"></i>分析提示词</label>
+                        <textarea class="form-control" id="aiotCapturePrompt" rows="3">请分析这张图片：1. 教室里是否有人？回答有或无。2. 灯是否开着？回答开或关。3. 如果无人但灯开着，请告诉我需要关灯。</textarea>
+                        <small class="text-muted">AI 将根据此提示词分析图片并决定是否控制设备</small>
+                    </div>
+                    
+                    <div class="mb-3" id="deviceInfoBox" style="display: none;">
+                        <label class="form-label"><i class="fas fa-id-card me-1"></i>设备信息</label>
+                        <div class="alert alert-secondary">
+                            <strong>Device ID:</strong> <span id="aiotDeviceId">-</span><br>
+                            <strong>设备类型:</strong> <span id="aiotDeviceTypeText">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="executeAiotControl()">
+                        <i class="fas fa-play me-1"></i> 开始 AIoT 控制测试
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = window.location.origin;
+        let iotControlEnabled = false;
+        let allClassrooms = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[aiot_admin] 页面加载完成');
+            loadClassroomsData();
+            loadServiceConfig();
+            
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('确定要退出调试管理页面吗？')) {
+                    window.location.href = 'aiot_index.html';
+                }
+            });
+            
+            document.getElementById('switchIotControl').addEventListener('change', function() {
+                iotControlEnabled = this.checked;
+            });
+        });
+        
+        // 快捷操作统一入口
+        async function quickAction(action) {
+            console.log('[快捷操作] 点击按钮:', action);
+            try {
+                if (action === 'test_wechat') await testWechatPush();
+                else if (action === 'test_sms') await testSmsNotification();
+                else if (action === 'test_iot') await testIotControl();
+                else if (action === 'capture_test') await captureTest();
+                else if (action === 'run_task6') await runTask6();
+                else if (action === 'aiot_control') await aiotControlTest();
+            } catch (error) {
+                console.error('[快捷操作] 失败:', error);
+                alert('操作失败：' + error.message);
+            }
+        }
+
+        // 1. 测试企业微信推送
+        async function testWechatPush() {
+            const message = prompt('请输入测试消息内容：', '【测试消息】AIoT 系统运行正常！');
+            if (!message) return;
+            
+            const response = await fetch(`${API_BASE}/api/aiot/push/wechat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('推送成功！' + JSON.stringify(result.result, null, 2));
+            } else {
+                alert('推送失败：' + result.message);
+            }
+        }
+
+        // 2. 测试短信通知
+        async function testSmsNotification() {
+            const phone = prompt('请输入接收短信的手机号：', '13815120911');
+            if (!phone) return;
+            
+            const message = prompt('请输入短信内容：', '【AIoT 测试】这是一条测试短信，系统运行正常！');
+            if (!message) return;
+            
+            const response = await fetch(`${API_BASE}/api/aiot/push/sms`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone, message: message })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('短信发送成功！接收手机：' + phone);
+            } else {
+                alert('短信发送失败：' + result.message);
+            }
+        }
+
+        // 3. 测试物联网设备控制（弹窗）
+        async function testIotControl() {
+            const modal = new bootstrap.Modal(document.getElementById('iotControlModal'));
+            
+            if (!iotControlEnabled) {
+                document.getElementById('iotControlAlert').style.display = 'block';
+                document.getElementById('iotControlPanel').style.display = 'none';
+            } else {
+                document.getElementById('iotControlAlert').style.display = 'none';
+                document.getElementById('iotControlPanel').style.display = 'block';
+                loadIotClassroomSelect();
+            }
+            
+            modal.show();
+        }
+        
+        function loadIotClassroomSelect() {
+            const select = document.getElementById('iotClassroomSelect');
+            select.innerHTML = '<option value="">-- 请选择教室 --</option>';
+            
+            allClassrooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room.classroom;
+                option.textContent = room.classroom + ' (' + (room.classname || '未知位置') + ')';
+                select.appendChild(option);
+            });
+        }
+        
+        async function loadIotDevices() {
+            const classroom = document.getElementById('iotClassroomSelect').value;
+            if (!classroom) return;
+            
+            const classroomData = allClassrooms.find(c => c.classroom === classroom || c.classname === classroom);
+            if (!classroomData) {
+                alert('未找到教室信息：' + classroom);
+                return;
+            }
+            
+            const deviceId = classroomData.lighting_id || classroomData.DEVICE_ID || '6c6c9826fbef91e252rakj';
+            
+            document.getElementById('lightingId').textContent = deviceId;
+            document.getElementById('acId').textContent = deviceId;
+            document.getElementById('socketId').textContent = deviceId;
+            
+            addIotLog('正在读取 ' + classroom + ' 设备状态...');
+            await readDeviceStatus(deviceId);
+        }
+        
+        async function readDeviceStatus(deviceId) {
+            console.log('[IoT] 开始读取设备状态，deviceId:', deviceId);
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/iot/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ device_id: deviceId })
+                });
+                const result = await response.json();
+                
+                console.log('[IoT] 设备状态响应:', result);
+                
+                if (result.success) {
+                    const status = result.status || {};
+                    console.log('[IoT] 状态数据:', status);
+                    console.log('[IoT] switch_1:', status.switch_1, 'switch_2:', status.switch_2, 'switch_3:', status.switch_3);
+                    
+                    // 尝试多种可能的字段名
+                    const lightingStatus = status.switch_1 || status.lighting || status.light || false;
+                    const acStatus = status.switch_2 || status.ac || status.aircon || false;
+                    const socketStatus = status.switch_3 || status.socket || status.outlet || false;
+                    
+                    console.log('[IoT] 解析后的状态 - 照明:', lightingStatus, '空调:', acStatus, '插座:', socketStatus);
+                    
+                    updateDeviceStatus('lighting', lightingStatus);
+                    updateDeviceStatus('ac', acStatus);
+                    updateDeviceStatus('socket', socketStatus);
+                    addIotLog('设备状态已更新 - 照明:' + (lightingStatus ? '开' : '关') + ' 空调:' + (acStatus ? '开' : '关') + ' 插座:' + (socketStatus ? '开' : '关'));
+                } else {
+                    addIotLog('读取设备状态失败：' + result.message);
+                    updateDeviceStatus('lighting', false);
+                    updateDeviceStatus('ac', false);
+                    updateDeviceStatus('socket', false);
+                }
+            } catch (error) {
+                console.error('[IoT] 读取设备状态异常:', error);
+                addIotLog('读取设备状态异常：' + error.message);
+                updateDeviceStatus('lighting', false);
+                updateDeviceStatus('ac', false);
+                updateDeviceStatus('socket', false);
+            }
+        }
+        
+        function updateDeviceStatus(deviceType, isOn) {
+            const statusEl = document.getElementById(deviceType + 'Status');
+            const cardEl = document.getElementById('iot' + deviceType.charAt(0).toUpperCase() + deviceType.slice(1));
+            
+            console.log('[IoT] 更新设备状态:', deviceType, 'isOn:', isOn, 'statusEl:', !!statusEl, 'cardEl:', !!cardEl);
+            
+            if (!statusEl || !cardEl) {
+                console.error('[IoT] 元素未找到:', deviceType);
+                return;
+            }
+            
+            // 更新状态文本
+            statusEl.textContent = isOn ? '开启' : '关闭';
+            statusEl.className = 'iot-status ' + (isOn ? 'on' : 'off');
+            
+            // 更新卡片样式
+            if (isOn) {
+                cardEl.classList.add('active');
+                console.log('[IoT] 已添加 active 类到', deviceType);
+            } else {
+                cardEl.classList.remove('active');
+                console.log('[IoT] 已移除 active 类从', deviceType);
+            }
+            
+            console.log('[IoT] 设备状态已更新:', deviceType, '最终状态:', isOn ? '开启' : '关闭');
+        }
+
+        async function controlIotDevice(deviceType, state) {
+            if (!iotControlEnabled) {
+                alert('物联网设备控制功能已禁用！');
+                return;
+            }
+            
+            const classroom = document.getElementById('iotClassroomSelect').value;
+            if (!classroom) {
+                alert('请先选择教室！');
+                return;
+            }
+            
+            const classroomData = allClassrooms.find(c => c.classroom === classroom || c.classname === classroom);
+            if (!classroomData) {
+                alert('未找到教室信息：' + classroom);
+                return;
+            }
+            
+            const deviceId = classroomData.lighting_id || classroomData.DEVICE_ID || '';
+            if (!deviceId) {
+                alert('未找到设备 ID：' + classroom);
+                return;
+            }
+            
+            const deviceNames = {'lighting': '照明', 'ac': '空调', 'socket': '插座'};
+            const action = state ? '开启' : '关闭';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/iot/control`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        classroom: classroom,
+                        device_id: deviceId,
+                        device_type: deviceType,
+                        state: state
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateDeviceStatus(deviceType, state);
+                    addIotLog(classroom + ' - ' + deviceNames[deviceType] + ' ' + action);
+                } else {
+                    alert('控制失败：' + result.message);
+                }
+            } catch (error) {
+                alert('控制失败：' + error.message);
+            }
+        }
+
+        function addIotLog(message) {
+            const logContent = document.getElementById('iotLogContent');
+            const time = new Date().toLocaleTimeString('zh-CN');
+            const newLog = '<div>[' + time + '] ' + message + '</div>';
+            
+            if (logContent.textContent === '暂无操作记录') {
+                logContent.innerHTML = newLog;
+            } else {
+                logContent.innerHTML = newLog + logContent.innerHTML;
+            }
+        }
+
+        // 4. 测试抓图分析（弹窗）
+        async function captureTest() {
+            const modal = new bootstrap.Modal(document.getElementById('captureModal'));
+            
+            const select = document.getElementById('captureClassroomSelect');
+            select.innerHTML = '<option value="">-- 请选择教室 --</option>';
+            
+            allClassrooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room.classroom;
+                option.textContent = room.classroom + ' (' + (room.classname || '未知位置') + ')';
+                select.appendChild(option);
+            });
+            
+            modal.show();
+        }
+        
+        async function executeCapture() {
+            const classroom = document.getElementById('captureClassroomSelect').value;
+            if (!classroom) {
+                alert('请先选择教室！');
+                return;
+            }
+            
+            const prompt = document.getElementById('capturePrompt').value.trim();
+            if (!prompt) {
+                alert('请输入分析提示词！');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/capture`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        classrooms: [classroom],
+                        prompt: prompt
+                    })
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'API 调用失败');
+                }
+                
+                if (data.results && data.results.length > 0) {
+                    const result = data.results[0];
+                    
+                    if (result.success) {
+                        const resultWindow = window.open('', '_blank');
+                        resultWindow.document.write('<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>抓图分析结果 - ' + classroom + '</title><link href="css/bootstrap.min.css" rel="stylesheet"><style>body{padding:20px;background:#f8f9fa}.result-card{background:white;border-radius:10px;padding:20px;margin:20px 0;box-shadow:0 2px 10px rgba(0,0,0,0.1)}.result-image{max-width:100%;border-radius:10px}.result-analysis{background:#f8f9fa;padding:15px;border-radius:5px;margin-top:15px}</style></head><body><div class="container"><div class="result-card"><h3><i class="fas fa-camera me-2"></i>' + classroom + ' 抓图分析结果</h3><img src="' + result.image + '" class="result-image" alt="' + classroom + '"><div class="result-analysis"><h5><i class="fas fa-robot me-2"></i>AI 分析结果</h5><p>' + result.analysis.replace(/\n/g, '<br>') + '</p></div></div></div></body></html>');
+                        resultWindow.document.close();
+                        
+                        // 安全关闭弹窗
+                        const modalEl = document.getElementById('captureModal');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        } else {
+                            // 如果实例不存在，手动关闭
+                            const closeBtn = modalEl.querySelector('.btn-close');
+                            if (closeBtn) closeBtn.click();
+                        }
+                    } else {
+                        alert('分析失败：' + (result.error || '未知错误'));
+                    }
+                } else {
+                    alert('未获取到分析结果');
+                }
+            } catch (error) {
+                alert('抓图分析失败：' + error.message);
+            }
+        }
+
+        // 5. 手动无人灯检测（弹窗）
+        async function runTask6() {
+            const modal = new bootstrap.Modal(document.getElementById('task6Modal'));
+            
+            const select = document.getElementById('task6ClassroomSelect');
+            select.innerHTML = '<option value="">-- 请选择教室 --</option>';
+            
+            allClassrooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room.classroom;
+                option.textContent = room.classroom + ' (' + (room.classname || '未知位置') + ')';
+                select.appendChild(option);
+            });
+            
+            modal.show();
+        }
+        
+        async function executeTask6() {
+            const classroom = document.getElementById('task6ClassroomSelect').value;
+            if (!classroom) {
+                alert('请先选择教室！');
+                return;
+            }
+            
+            const prompt = document.getElementById('task6Prompt').value.trim();
+            if (!prompt) {
+                alert('请输入分析提示词！');
+                return;
+            }
+            
+            if (!confirm('确认执行无人灯检测？\n\n教室：' + classroom + '\n提示词：' + prompt + '\n\n这将只抓取该教室画面并进行 AI 分析。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/task/6/run`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        classrooms: [classroom],
+                        prompt: prompt
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('任务已启动！\n\n' + result.message + '\n\n请稍后在日志查看页面查看执行结果。');
+                    // 安全关闭弹窗
+                    const modalEl = document.getElementById('task6Modal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) {
+                        modal.hide();
+                    } else {
+                        const closeBtn = modalEl.querySelector('.btn-close');
+                        if (closeBtn) closeBtn.click();
+                    }
+                } else {
+                    alert('任务启动失败：' + result.message);
+                }
+            } catch (error) {
+                alert('任务启动失败：' + error.message);
+            }
+        }
+
+        // 6. AIoT 全链控制测试（弹窗）
+        async function aiotControlTest() {
+            const modal = new bootstrap.Modal(document.getElementById('aiotControlModal'));
+            
+            const select = document.getElementById('aiotClassroomSelect');
+            select.innerHTML = '<option value="">-- 请选择教室 --</option>';
+            
+            allClassrooms.forEach(room => {
+                const option = document.createElement('option');
+                option.value = room.classroom;
+                option.textContent = room.classroom + ' (' + (room.classname || '未知位置') + ')';
+                option.setAttribute('data-device-id', room.lighting_id || room.DEVICE_ID || '');
+                select.appendChild(option);
+            });
+            
+            modal.show();
+        }
+        
+        function onAiotClassroomChange() {
+            const select = document.getElementById('aiotClassroomSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const deviceId = selectedOption.getAttribute('data-device-id') || '-';
+            const deviceTypeText = document.getElementById('aiotDeviceTypeSelect').options[
+                document.getElementById('aiotDeviceTypeSelect').selectedIndex
+            ].textContent;
+            
+            document.getElementById('aiotDeviceId').textContent = deviceId;
+            document.getElementById('aiotDeviceTypeText').textContent = deviceTypeText;
+            document.getElementById('deviceInfoBox').style.display = deviceId !== '-' ? 'block' : 'none';
+        }
+        
+        async function executeAiotControl() {
+            const classroom = document.getElementById('aiotClassroomSelect').value;
+            const deviceType = document.getElementById('aiotDeviceTypeSelect').value;
+            const prompt = document.getElementById('aiotCapturePrompt').value.trim();
+            
+            if (!classroom) {
+                alert('请先选择教室！');
+                return;
+            }
+            
+            if (!prompt) {
+                alert('请输入分析提示词！');
+                return;
+            }
+            
+            const select = document.getElementById('aiotClassroomSelect');
+            const selectedOption = select.options[select.selectedIndex];
+            const deviceId = selectedOption.getAttribute('data-device-id');
+            
+            if (!deviceId) {
+                alert('该教室没有配置设备 ID！');
+                return;
+            }
+            
+            try {
+                const captureResponse = await fetch(`${API_BASE}/api/aiot/capture`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        classrooms: [classroom],
+                        prompt: prompt
+                    })
+                });
+                const captureData = await captureResponse.json();
+                
+                if (!captureData.success || !captureData.results || captureData.results.length === 0) {
+                    throw new Error('抓图分析失败：' + (captureData.message || '未知错误'));
+                }
+                
+                const captureResult = captureData.results[0];
+                
+                if (!captureResult.success) {
+                    throw new Error('抓图失败：' + (captureResult.error || '未知错误'));
+                }
+                
+                const analysis = captureResult.analysis.toLowerCase();
+                let shouldControl = false;
+                let targetState = false;
+                let controlReason = '';
+                
+                if (analysis.includes('无人') && (analysis.includes('灯开') || analysis.includes('灯开着'))) {
+                    shouldControl = true;
+                    targetState = false;
+                    controlReason = 'AI 检测到无人但灯开着';
+                } else if (analysis.includes('关灯') || analysis.includes('关闭')) {
+                    shouldControl = true;
+                    targetState = false;
+                    controlReason = 'AI 建议关灯';
+                } else if (analysis.includes('开灯') || analysis.includes('开启')) {
+                    shouldControl = true;
+                    targetState = true;
+                    controlReason = 'AI 建议开灯';
+                }
+                
+                let confirmMessage = '📊 AI 分析结果：\n\n' + captureResult.analysis + '\n\n';
+                
+                if (shouldControl) {
+                    const action = targetState ? '开启' : '关闭';
+                    const deviceNames = {'lighting': '照明', 'ac': '空调', 'socket': '插座'};
+                    confirmMessage += '💡 控制决策：\n' + controlReason + '\n\n将' + action + ' ' + classroom + ' 的' + deviceNames[deviceType] + '\n\n';
+                    confirmMessage += '⚠️ 确认要执行控制吗？';
+                    
+                    if (!confirm(confirmMessage)) {
+                        return;
+                    }
+                    
+                    const controlResponse = await fetch(`${API_BASE}/api/aiot/iot/control`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            classroom: classroom,
+                            device_id: deviceId,
+                            device_type: deviceType,
+                            state: targetState
+                        })
+                    });
+                    const controlResult = await controlResponse.json();
+                    
+                    if (controlResult.success) {
+                        alert('✅ AIoT 控制测试完成！\n\n📊 分析结果：\n' + captureResult.analysis + '\n\n🎯 控制结果：\n' + controlResult.message + '\n\n原因：' + controlReason);
+                    } else {
+                        alert('⚠️ 控制失败：\n' + controlResult.message);
+                    }
+                } else {
+                    confirmMessage += '💡 控制决策：\n无需控制设备（AI 未检测到需要控制的场景）';
+                    alert(confirmMessage);
+                }
+                
+                bootstrap.Modal.getInstance(document.getElementById('aiotControlModal'))?.hide();
+            } catch (error) {
+                alert('AIoT 控制测试失败：' + error.message);
+            }
+        }
+
+        // 加载服务配置
+        async function loadServiceConfig() {
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/services`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const services = data.services || {};
+                    document.getElementById('switchWeb').checked = services.web_service !== false;
+                    document.getElementById('switchWeComURL').checked = services.wechat_url_callback !== false;
+                    document.getElementById('switchFeishu').checked = services.feishu_bot === true;
+                    document.getElementById('switchWebhook').checked = services.webhook_push !== false;
+                    document.getElementById('switchScheduler').checked = services.task_scheduler !== false;
+                    document.getElementById('switchIotControl').checked = services.iot_control === true;
+                    
+                    iotControlEnabled = services.iot_control === true;
+                    updateStatusBadges();
+                }
+            } catch (error) {
+                console.error('加载服务配置失败:', error);
+            }
+        }
+
+        function updateStatusBadges() {
+            const badges = [
+                {key: 'Web', switchId: 'switchWeb'},
+                {key: 'WeComURL', switchId: 'switchWeComURL'},
+                {key: 'Feishu', switchId: 'switchFeishu'},
+                {key: 'Webhook', switchId: 'switchWebhook'},
+                {key: 'Scheduler', switchId: 'switchScheduler'},
+                {key: 'IotControl', switchId: 'switchIotControl'}
+            ];
+            
+            badges.forEach(function(item) {
+                const badgeEl = document.getElementById('status' + item.key);
+                const switchEl = document.getElementById(item.switchId);
+                if (badgeEl && switchEl) {
+                    badgeEl.className = 'badge ' + (switchEl.checked ? 'bg-success' : 'bg-secondary');
+                    badgeEl.textContent = switchEl.checked ? '运行中' : '已关闭';
+                }
+            });
+        }
+
+        async function saveServiceConfig() {
+            const config = {
+                web_service: document.getElementById('switchWeb').checked,
+                wechat_url_callback: document.getElementById('switchWeComURL').checked,
+                feishu_bot: document.getElementById('switchFeishu').checked,
+                webhook_push: document.getElementById('switchWebhook').checked,
+                task_scheduler: document.getElementById('switchScheduler').checked,
+                iot_control: document.getElementById('switchIotControl').checked
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/services`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ services: config })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    iotControlEnabled = config.iot_control;
+                    updateStatusBadges();
+                    alert('配置已保存！需要重启服务才能生效。');
+                } else {
+                    alert('保存失败：' + result.message);
+                }
+            } catch (error) {
+                alert('保存失败：' + error.message);
+            }
+        }
+
+        async function restartServices() {
+            if (!confirm('确定要重启所有服务吗？服务将在 3 秒后重启，请稍候...')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/restart`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('服务重启命令已发送！请等待 5-10 秒后刷新页面查看状态。');
+                } else {
+                    alert('重启失败：' + result.message);
+                }
+            } catch (error) {
+                alert('重启失败：' + error.message);
+            }
+        }
+
+        async function loadClassroomsData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/aiot/classrooms`);
+                const data = await response.json();
+                if (data.success) {
+                    allClassrooms = data.all || [];
+                    console.log('教室数量:', allClassrooms.length);
+                }
+            } catch (error) {
+                console.error('加载教室数据失败:', error);
+            }
+        }
+    </script>
+
+
+</body></html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIoT 智慧校园平台 - 完整功能截图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        .info {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .info p { margin: 8px 0; color: #333; }
+        .info strong { color: #667eea; }
+        .section-title {
+            color: white;
+            font-size: 1.5em;
+            margin: 30px 0 20px 0;
+            padding-left: 15px;
+            border-left: 4px solid white;
+        }
+        .gallery { display: grid; gap: 30px; }
+        .screenshot-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .screenshot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        .screenshot-card h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tag {
+            display: inline-block;
+            padding: 3px 12px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .screenshot-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+        }
+        .screenshot-card .meta {
+            padding: 12px 25px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.85em;
+            border-top: 1px solid #eee;
+        }
+        .screenshot-card .desc {
+            padding: 10px 25px;
+            background: #fff;
+            color: #888;
+            font-size: 0.85em;
+            border-bottom: 1px solid #eee;
+            line-height: 1.5;
+        }
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 5px;
+        }
+        .btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 AIoT 智慧校园平台 - 完整功能截图</h1>
+        <p class="subtitle">人工智能 + 物联网应用管理平台</p>
+        
+        <div class="info">
+            <p><strong>🌐 网站地址：</strong><a href="http://aiot.njschool.cn" target="_blank" class="btn">http://aiot.njschool.cn</a></p>
+            <p><strong>📅 截图时间：</strong>2026-04-30 08:58（最新）</p>
+        </div>
+        
+        <h2 class="section-title">🔐 登录流程</h2>
+        <div class="gallery">
+            <div class="screenshot-card">
+                <h3><span class="tag">01</span>登录页面</h3>
+                <img src="000_login_page.png" alt="登录页面" onclick="viewImage(this)">
+                <div class="desc">AI 控制（灯光/空调/插座/智能音箱）<br>支持管理员登录，记住登录状态</div>
+                <div class="meta">000_login_page.png | 2026-04-30 08:58 更新</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">02</span>登录后主页</h3>
+                <img src="001_dashboard.png" alt="登录后主页" onclick="viewImage(this)">
+                <div class="meta">001_dashboard.png | 642 KB</div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">🏠 首页导航</h2>
+        <div class="gallery">
+            <div class="screenshot-card">
+                <h3><span class="tag">03</span>系统首页（完整长图）</h3>
+                <img src="002_首页_full.png" alt="系统首页" onclick="viewImage(this)">
+                <div class="meta">002_首页_full.png | 1260 KB | 2114px</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">04</span>AIoT 首页（功能导航页）</h3>
+                <img src="004_aiot_index_full.png" alt="AIoT 首页" onclick="viewImage(this)">
+                <div class="meta">004_aiot_index_full.png | 642 KB</div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">⚙️ AIoT 首页功能按钮</h2>
+        <div class="gallery">
+            <div class="screenshot-card">
+                <h3><span class="tag">05</span>任务配置管理</h3>
+                <img src="010_aiot_config.png" alt="任务配置管理" onclick="viewImage(this)">
+                <div class="desc">查看和管理所有 AI 分析任务配置<br>支持启用/禁用、编辑、删除操作</div>
+                <div class="meta">010_aiot_config.png | 663 KB | 1080px</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">06</span>新增任务</h3>
+                <img src="011_aiot_config_add.png" alt="新增任务" onclick="viewImage(this)">
+                <div class="desc">自然语言描述生成任务配置<br>选择教室、设置时间、编写提示词</div>
+                <div class="meta">011_aiot_config_add.png | 577 KB | 1505px</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">07</span>日志查看</h3>
+                <img src="012_aiot_log.png" alt="日志查看" onclick="viewImage(this)">
+                <div class="desc">表格化紧凑布局，支持多维度筛选、分页、导出 CSV<br>图片预览模态框、实时统计卡片</div>
+                <div class="meta">012_aiot_log.png | 536 KB | 1080px</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">08</span>AI 对话</h3>
+                <img src="013_aiot_chat.png" alt="AI 对话" onclick="viewImage(this)">
+                <div class="desc">与企业微信智能机器人对话<br>查询状态、发送指令、获取报告</div>
+                <div class="meta">013_aiot_chat.png | 593 KB | 1080px</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">09</span>调试管理</h3>
+                <img src="014_aiot_admin.png" alt="调试管理" onclick="viewImage(this)">
+                <div class="desc">系统配置、设备管理<br>高级调试功能（管理员专用）</div>
+                <div class="meta">014_aiot_admin.png | 562 KB | 1080px</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">10</span>手动无人灯监测</h3>
+                <img src="016_aiot_manual_light.png" alt="手动无人灯监测" onclick="viewImage(this)">
+                <div class="desc">按年级勾选、多选班级<br>查看结果页面、图片链接可点击<br>手动刷新按钮</div>
+                <div class="meta">016_aiot_manual_light.html | 新页面</div>
+            </div>
+            
+            <div class="screenshot-card">
+                <h3><span class="tag">11</span>返回主页</h3>
+                <img src="015_index.png" alt="返回主页" onclick="viewImage(this)">
+                <div class="desc">返回智慧校园应用软件平台<br>QuickForge 教学评测系统</div>
+                <div class="meta">015_index.png | 1260 KB | 2114px</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Generated by 小张同学 | 2026-04-30 08:58</p>
+        </div>
+    </div>
+    
+    <script>
+        function viewImage(img) {
+            const win = window.open();
+            win.document.write('<html><head><title>' + img.alt + '</title><style>body{margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;}</style></head><body><img src="' + img.src + '" style="max-width:100%;max-height:100vh;"></body></html>');
+        }
+    </script>
+</body>
+</html>
